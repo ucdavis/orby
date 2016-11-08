@@ -17,8 +17,9 @@ namespace orby
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true);
-
+                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
+                .AddUserSecrets();
+                
             if (env.IsEnvironment("Development"))
             {
                 // This will push telemetry data through Application Insights pipeline faster, allowing you to view results immediately.
@@ -36,7 +37,7 @@ namespace orby
         {
             // Add framework services.
             services.AddApplicationInsightsTelemetry(Configuration);
-
+            services.Configure<AppSettings>(Configuration.GetSection("AppSettings"));
             services.AddMvc();
         }
 
