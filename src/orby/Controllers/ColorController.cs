@@ -47,8 +47,14 @@ namespace orby.Controllers
 
         // POST api/values
         [HttpPost]
-        public void Post([FromBody]string value)
+        public async void Post([FromBody]GitHubResponse response)
         {
+            if (response.action == "opened")
+            {
+                await Get("FF0000");
+            } else {
+                await Get("0000FF");
+            }
         }
 
         // PUT api/values/5
@@ -61,6 +67,35 @@ namespace orby.Controllers
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
+        }
+    }
+
+    public class GitHubResponse
+    {
+        public string action { get; set; }
+        public IssueContainer issue { get; set; }
+        public RepositoryContainer repository { get; set; }
+        public SenderContainer sender { get; set; }
+        public class IssueContainer
+        {
+            public string url { get; set; }
+            public int number { get; set; }
+        }
+        public class RepositoryContainer
+        {
+            public int id { get; set; }
+            public string full_name { get; set; }
+            public OwnerContainer owner { get; set; }
+        }
+        public class SenderContainer
+        {
+            public string login { get; set; }
+            public int id { get; set; }
+        }
+        public class OwnerContainer
+        {
+            public string login { get; set; }
+            public int id { get; set; }
         }
     }
 }
