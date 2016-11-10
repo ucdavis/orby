@@ -46,9 +46,45 @@ namespace orby.Controllers
         }
 
         // POST api/values
-        [HttpPost]
-        public void Post([FromBody]string value)
+        [HttpPost("default")]
+        public async void Post([FromBody]GitHubResponse response)
         {
+            if (response.action == "opened")
+            {
+                await Get("FF0000");
+            } else {
+                await Get("0000FF");
+            }
+        }
+
+        [HttpPost("deployment")]
+        public async void Post([FromBody]DeploymentStatusEvent response)
+        {
+            if (response.deployment_status.state == "success")
+            {
+                await Get("4ef442");
+            }
+            else if (response.deployment_status.state == "pending")
+            {
+                await Get("f4f442");
+            }
+            else //Must be failure or error
+            {
+                await Get("cc0000");
+            }
+        }
+
+        [HttpPost("pr")]
+        public async void Post([FromBody]PullRequestReviewEvent response)
+        {
+            if (response.review.state == "approved")
+            {
+                await Get("4ef442");
+            }
+            else
+            {
+                await Get("f4f442");
+            }
         }
 
         // PUT api/values/5
@@ -61,6 +97,64 @@ namespace orby.Controllers
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
+        }
+    }
+
+    public class DeploymentStatusEvent
+    {
+        public DeploymentContainer deployment_status { get; set; }
+        public class DeploymentContainer
+        {
+            public string state { get; set; }
+            public string url { get; set; }
+            public int id { get; set; }
+        }
+    }
+
+    public class PullRequestReviewEvent
+    {
+        public string action { get; set; }
+        public ReviewContainer review { get; set; }
+        public class ReviewContainer
+        {
+            public string state { get; set; }
+            public string body { get; set; }
+            public UserContainer user { get; set; }
+
+            public class UserContainer
+            {
+                public string login { get; set; }
+            }
+        }
+        
+    }
+
+    public class GitHubResponse
+    {
+        public string action { get; set; }
+        public IssueContainer issue { get; set; }
+        public RepositoryContainer repository { get; set; }
+        public SenderContainer sender { get; set; }
+        public class IssueContainer
+        {
+            public string url { get; set; }
+            public int number { get; set; }
+        }
+        public class RepositoryContainer
+        {
+            public int id { get; set; }
+            public string full_name { get; set; }
+            public OwnerContainer owner { get; set; }
+        }
+        public class SenderContainer
+        {
+            public string login { get; set; }
+            public int id { get; set; }
+        }
+        public class OwnerContainer
+        {
+            public string login { get; set; }
+            public int id { get; set; }
         }
     }
 }
