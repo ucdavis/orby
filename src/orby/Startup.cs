@@ -15,6 +15,7 @@ namespace orby
         public Startup(IHostingEnvironment env)
         {
             var builder = new ConfigurationBuilder()
+                
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
@@ -48,7 +49,7 @@ namespace orby
             loggerFactory.AddDebug();
 
             app.UseApplicationInsightsRequestTelemetry();
-
+            app.UseDeveloperExceptionPage();
             app.UseApplicationInsightsExceptionTelemetry();
 
             app.UseMvc();
