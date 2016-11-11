@@ -6,4 +6,3 @@ Uber for orbs
 
 --
 Webhook for Pull Request Reviews: /api/pr
-Now serving GitHub webhooks
