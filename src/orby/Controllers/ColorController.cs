@@ -57,14 +57,14 @@ namespace orby.Controllers
             }
         }
 
-        [HttpPost("deployment")]
-        public async void Post([FromBody]DeploymentStatusEvent response)
+        [HttpPost("status")]
+        public async void Post([FromBody]StatusEvent response)
         {
-            if (response.deployment_status.state == "success")
+            if (response.state == "success")
             {
                 await Get("4ef442");
             }
-            else if (response.deployment_status.state == "pending")
+            else if (response.state == "pending")
             {
                 await Get("f4f442");
             }
@@ -81,9 +81,13 @@ namespace orby.Controllers
             {
                 await Get("4ef442");
             }
-            else
+            else if (response.review.state == "pending")
             {
                 await Get("f4f442");
+            }
+            else
+            {
+                await Get("cc0000");
             }
         }
 
@@ -100,15 +104,12 @@ namespace orby.Controllers
         }
     }
 
-    public class DeploymentStatusEvent
+    public class StatusEvent
     {
-        public DeploymentContainer deployment_status { get; set; }
-        public class DeploymentContainer
-        {
-            public string state { get; set; }
-            public string url { get; set; }
-            public int id { get; set; }
-        }
+        public int id { get; set; }
+        public string name { get; set; }
+        //Can be pending, success, failure, or error
+        public string state { get; set; }
     }
 
     public class PullRequestReviewEvent
