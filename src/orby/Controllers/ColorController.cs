@@ -8,6 +8,7 @@ using System.Net.Http;
 using Newtonsoft.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
+using System.Threading;
 
 // For more information on enabling Web API for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -18,9 +19,31 @@ namespace orby.Controllers
     {
         private readonly AppSettings _appSettings;
 
+        public static string CurrentColor = "#ff0000 ";
+        public static Timer Timer;
+        public static int k = 0; // For counting Timer color changes
+
         public ColorController(IOptions<AppSettings> appSettings)
         {
             _appSettings = appSettings.Value;
+            if (Timer == null)
+            {
+                // Initialize Timer to not fire until we get a pending webhook
+                Timer = new Timer(TimerCallback, "state", -1, -1);
+            }
+        }
+
+        private void TimerCallback(object state)
+        {
+            if (k % 2 == 0)
+            {
+                Get("A19825");
+            }
+            else
+            {
+                Get("FFEE00");
+            }
+            k++;            
         }
 
 
@@ -52,7 +75,8 @@ namespace orby.Controllers
             if (response.action == "opened")
             {
                 await Get("FF0000");
-            } else {
+            } else
+            {
                 await Get("0000FF");
             }
         }
@@ -62,16 +86,19 @@ namespace orby.Controllers
         {
             if (response.state == "success")
             {
+                Timer.Change(-1, -1);
                 await Get("4ef442");
             }
             else if (response.state == "pending")
             {
-                await Get("f4f442");
+                Timer.Change(0, 1000);
             }
             else //Must be failure or error
             {
+                Timer.Change(-1, -1);
                 await Get("cc0000");
             }
+            
         }
 
         [HttpPost("pr")]
@@ -79,14 +106,16 @@ namespace orby.Controllers
         {
             if (response.review.state == "approved")
             {
+                Timer.Change(-1, -1);
                 await Get("4ef442");
             }
             else if (response.review.state == "pending")
             {
-                await Get("f4f442");
+                Timer.Change(0, 1000);
             }
             else
             {
+                Timer.Change(-1, -1);
                 await Get("cc0000");
             }
         }
@@ -121,7 +150,6 @@ namespace orby.Controllers
             public string state { get; set; }
             public string body { get; set; }
             public UserContainer user { get; set; }
-
             public class UserContainer
             {
                 public string login { get; set; }
